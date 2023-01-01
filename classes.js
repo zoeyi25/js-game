@@ -12,11 +12,25 @@ class Rectangle {
     this.canvasHeight = canvasHeight;
     this.direction = "up";
     this.move();
+    this.id;
+    this.gameOver = false;
   }
 
   get pos()
   {
     return [this.x, this.y, this.width, this.height];
+  }
+
+  isGameOver() {
+    return this.gameOver;
+  }
+
+  setWidth(value) {
+    this.width = value;
+  }
+
+  setHeight(value) {
+    this.height = value;
   }
 
   draw() {
@@ -41,22 +55,21 @@ class Rectangle {
     ctx.restore();
   }
 
-  move()
-  {
-    console.log("moved")
-    const speed = 1;
-    const id = setInterval(() =>
-    {
-      console.log("y = " + this.y)
-      // code between these curly brackets {} will run repeatedly at interval
+  move() {
+    const speed = 10;
 
+    this.id = setInterval(() =>
+    {
+      // code between these curly brackets {} will run repeatedly at interval
       ctx.clearRect(this.x - 1, this.y - 1, this.width + 2, this.height + 2);
 
       if (this.y <= this.canvasHeight * 0.1) {
         this.direction = "down";
       }
-      if (this.y >= this.canvasHeight * 0.9) {
-        this.direction = "up";
+      // if it goes down out of canvas
+      if (this.y >= this.canvasHeight & this.direction == "down") {
+        this.stopMoving();
+        this.gameOver = true;
       }
 
       if (this.direction == "up"){
@@ -67,5 +80,9 @@ class Rectangle {
       }
       this.draw();
     }, 50);   //repeat interval every 50 ms
+  }
+
+stopMoving() {
+  clearInterval(this.id);
   }
 }

@@ -1,34 +1,11 @@
 var c = document.getElementById("canvas");
 var ctx = c.getContext("2d");
-var myRectangle = new Rectangle(100, 500, 50, 50, "#FF0000", "#000000", 0, c.height);
-myRectangle.draw();
-
-function onMouseClick()
-{
-  alert("sup");
-}
-
-function onKeyPress(e)
-{
-  var kp = e.key;
-
-  if (kp == "w" || kp == "W")
-  {
-    alert("you pressed the w key");
-  }
-  else if (kp == "a" || kp == "A")
-  {
-    alert("you pressed the a key");
-  }
-  else if (kp == "s" || kp == "S")
-  {
-    alert("you pressed the s key");
-  }
-  else if (kp == "d" || kp == "D")
-  {
-    alert("you pressed the d key");
-  }
-}
+var counter = 0
+ctx.font = "80px Arial";
+ctx.fillStyle = "000000"
+var rectangles = [];
+newRect();
+ctx.fillText("0", 0, c.height * 0.1);
 
 let origTime = 0;
 function onMouseDown()
@@ -52,31 +29,72 @@ function randomColor()
   return `rgb(${newR}, ${newG}, ${newB})`
 }
 
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function onMouseMove(e)
 {
   // get x and y coords of mouse
   var cRect = c.getBoundingClientRect();
   var mouseX = Math.round(e.clientX - cRect.left);
   var mouseY = Math.round(e.clientY - cRect.top);
+  for (let i in rectangles) {
+    // get x, y, width, and height of rectangle
+    var x = rectangles[i].pos[0]
+    var y = rectangles[i].pos[1]
+    var width = rectangles[i].pos[2]
+    var height = rectangles[i].pos[3]
 
-  console.log("mouse at " + mouseX + ", " + mouseY)
-
-  // get x, y, width, and height of rectangle
-  var x = myRectangle.pos[0]
-  var y = myRectangle.pos[1]
-  var width = myRectangle.pos[2]
-  var height = myRectangle.pos[3]
-
-  // if mouse is in rectangle and user is left clicking
-  const now = new Date();
-  if (x <= mouseX && mouseX <= x + width && y <= mouseY && mouseY <= y + height && e.buttons == 1 && now.getTime() - origTime > 1) {
-    console.log("sliced at " + x + ", " + y + ", " + width + ", " + height)
-    ctx.clearRect(x - 1, y - 1, width + 2, height + 2);
-    myRectangle = new Rectangle(50, 50, 200, 100, "#123456", "#000000", 0, c.height);
-    myRectangle.draw();
+    // slice
+    const now = new Date();
+    if (x <= mouseX && mouseX <= x + width && y <= mouseY && mouseY <= y + height && e.buttons == 1 && now.getTime() - origTime > 100) {
+      ctx.clearRect(x - 1, y - 1, width + 2, height + 2);
+      rectangles[i].stopMoving();
+      delete rectangles[i];
+      ctx.fillStyle = "#FFFFFF"
+      // not the best solution
+      ctx.fillText(counter, 0, c.height * 0.1);
+      ctx.fillText(counter, 0, c.height * 0.1);
+      ctx.fillText(counter, 0, c.height * 0.1);
+      ctx.fillText(counter, 0, c.height * 0.1);
+      ctx.fillText(counter, 0, c.height * 0.1);
+      ctx.fillText(counter, 0, c.height * 0.1);
+      ctx.fillText(counter, 0, c.height * 0.1);
+      ctx.fillText(counter, 0, c.height * 0.1);
+      ctx.fillStyle = "#000000"
+      ctx.font = "80px Arial";
+      counter += 1
+      //ctx.clearRect(0, 0, 100, 1000)
+      ctx.fillText(counter, 0, c.height * 0.1);
+      newRect()
+    }
   }
 }
 
-c.addEventListener("keydown", onKeyPress);
+const intervalID = setInterval(checkGameOver, 50);
+
+function checkGameOver()
+{
+  for (let i in rectangles) {
+    if (rectangles[i].isGameOver() == true) {
+      for (let i in rectangles) {
+        rectangles[i].stopMoving();
+      }
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.fillText("u suck", c.width * 0.5, c.height * 0.5);
+      ctx.fillText("score: " + counter, c.width * 0.5, c.height * 0.6);
+    }
+  }
+}
+
+const intervalID2 = setInterval(newRect, randomInt(5000, 10000));
+
+function newRect()
+{
+  rectangles.push(new Rectangle(randomInt(1, c.width * 0.9), c.height, randomInt(50, 200), randomInt(50, 200), randomColor(), "#000000", 0, c.height));
+  rectangles[rectangles.length - 1].draw();
+}
+
 c.addEventListener("mousedown", onMouseDown);
 c.addEventListener("mousemove", onMouseMove);
